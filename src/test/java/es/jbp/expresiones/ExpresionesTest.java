@@ -42,7 +42,10 @@ public class ExpresionesTest {
                     }
 
                     @Override
-                    public int getNumeroParametros() {
+                    public int getNumeroMinimoParametros() {
+                        return 0;
+                    }
+                    public int getNumeroMaximoParametros() {
                         return NodoFuncion.MULTIPLES_VALORES;
                     }
                 };

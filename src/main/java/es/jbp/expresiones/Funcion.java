@@ -7,5 +7,6 @@ import java.util.List;
  */
 public interface Funcion {
     Valor evaluar(List<Valor> listaParametros);
-    int getNumeroParametros();
+    int getNumeroMinimoParametros();
+    int getNumeroMaximoParametros();
 }

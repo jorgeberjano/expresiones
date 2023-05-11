@@ -1,19 +1,38 @@
 package es.jbp.expresiones;
 
+import java.util.Objects;
+
 /**
  * @author Jorge Berjano
  */
 public class Valor {
 
     public enum Tipo {
+        VALOR_NULO,
         VALOR_BOOLEANO,
         VALOR_ENTERO,
         VALOR_REAL,
         VALOR_CADENA
     }
 
-    private Tipo tipo;
+    private final Tipo tipo;
     private Object variant;
+
+    public Valor(Object valor) {
+        variant = valor;
+        if (valor == null) {
+            tipo = Tipo.VALOR_NULO;
+        } else if (valor instanceof Boolean) {
+            tipo = Tipo.VALOR_BOOLEANO;
+        } else if (valor instanceof Integer || valor instanceof Long) {
+            tipo = Tipo.VALOR_ENTERO;
+        } else if (valor instanceof Float || valor instanceof Double) {
+            tipo = Tipo.VALOR_REAL;
+        } else {
+            tipo = Tipo.VALOR_CADENA;
+            variant = Objects.toString(valor);
+        }
+    }
 
     public Valor(boolean valor) {
         tipo = Tipo.VALOR_BOOLEANO;
@@ -34,6 +53,10 @@ public class Valor {
     public Valor(String valor) {
         tipo = Tipo.VALOR_CADENA;
         variant = valor;
+    }
+
+    public Tipo getTipo() {
+        return tipo;
     }
 
     public String toString() {
@@ -100,5 +123,36 @@ public class Valor {
             default:
                 return null;
         }
+    }
+
+    public boolean parseBoolean() {
+        if (tipo == Tipo.VALOR_CADENA) {
+            String cadena = toString();
+            if (Objects.equals(cadena, "true")) {
+                return true;
+            }
+            Long entero = toLong();
+            if (entero != null && entero != 0) {
+                return true;
+            }
+        }
+        return toBoolean();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Valor valor = (Valor) o;
+        return tipo == valor.tipo && Objects.equals(variant, valor.variant);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tipo, variant);
     }
 }

@@ -18,7 +18,6 @@ public class CompiladorExpresiones {
     private String tokensError;
 
     private FactoriaIdentificadores factoriaIdentificadores;
-    private final List<String> listaNombresVariables = new ArrayList<>();
 
     public void setFactoriaIdentificadores(FactoriaIdentificadores factoriaIdentificadores) {
         this.factoriaIdentificadores = factoriaIdentificadores;
@@ -28,8 +27,6 @@ public class CompiladorExpresiones {
      * Realiza el analisis lexico y sintactico de la expresion que se le inyecta
      */
     public NodoExpresion compilar(String expresion) {
-        listaNombresVariables.clear();
-
         if (!analisisLexico(expresion)) {
             return null;
         }
@@ -41,6 +38,7 @@ public class CompiladorExpresiones {
         this.mensajeError = mensaje;
         this.tokensError = tokens;
         this.posicionError = posicion;
+        System.err.println(mensaje + ": " + tokens);
     }
 
     /*
@@ -96,9 +94,7 @@ public class CompiladorExpresiones {
     }
 
     /**
-     * Agrega un token a la lista de tokens y le asignana la prioridad que le
-     * corresponda.
-     */
+     * Agrega un token a la lista de tokens y le asigna la prioridad que le corresponda.     */
     private void agregarToken(Token token) {
         Token ultimoToken = null;
 
@@ -133,6 +129,13 @@ public class CompiladorExpresiones {
      * Obtiene el tipo de token.
      */
     Token.Tipo determinarTipoDeToken(String token) {
+
+        int comillas = (int) token.chars().filter(ch -> ch == '"').count();
+        if (comillas > 2) {
+            return null;
+        } else if (comillas == 2 && !token.endsWith("\"")) {
+            return null;
+        }
 
         for (Token.Tipo tipoToken : Token.Tipo.values()) {
             // TODO: optimizar
@@ -247,7 +250,7 @@ public class CompiladorExpresiones {
         if (segundoToken.tipo == Token.Tipo.ABRIR_PARENTESIS) {
             if (primerToken.tipo == Token.Tipo.IDENTIFICADOR) {
                 if (ultimoToken.tipo != Token.Tipo.CERRAR_PARENTESIS) {
-                    error("Falta un par�ntesis de cierre", "", ultimoToken.posicion);
+                    error("Falta un paréntesis de cierre", "", ultimoToken.posicion);
                     return null;
                 }
 
@@ -298,7 +301,7 @@ public class CompiladorExpresiones {
             return null;
         }
 
-        listaNombresVariables.add(token.texto);
+//        listaNombresVariables.add(token.texto);
 
         return new NodoVariable(variable);
     }
@@ -339,8 +342,8 @@ public class CompiladorExpresiones {
             if (nivelParentesis == 0 && (token.tipo == Token.Tipo.COMA || esUltimoToken)) {
                 contadorParametros++;
 
-                if (nodoFuncion.numeroParametrosEntrada() != NodoFuncion.MULTIPLES_VALORES
-                        && contadorParametros > nodoFuncion.numeroParametrosEntrada()) {
+                if (nodoFuncion.numeroMaximoParametrosEntrada() != NodoFuncion.MULTIPLES_VALORES
+                        && contadorParametros > nodoFuncion.numeroMaximoParametrosEntrada()) {
                     error("Número de parámetros excesivo", nombreFuncion, token.posicion);
 
                     return null;
@@ -360,8 +363,8 @@ public class CompiladorExpresiones {
             return null;
         }
 
-        if (nodoFuncion.numeroParametrosEntrada() != NodoFuncion.MULTIPLES_VALORES
-                && nodoFuncion.numeroParametrosEntrada() > contadorParametros) {
+        if (nodoFuncion.numeroMinimoParametrosEntrada() != NodoFuncion.MULTIPLES_VALORES
+                && nodoFuncion.numeroMinimoParametrosEntrada() > contadorParametros) {
             error("Número de parámetros insuficiente", nombreFuncion, posicion);            
             return null;
         }
@@ -390,7 +393,9 @@ public class CompiladorExpresiones {
             operador = new Operador.Multiplicacion();
         } else if ("/".equals(nombreFuncion)) {
             operador = new Operador.Division();
-        } else if ("<".equals(nombreFuncion)) {
+        } else if ("=".equals(nombreFuncion) || "==".equals(nombreFuncion)) {
+            operador = new Operador.Igual();
+        }else if ("<".equals(nombreFuncion)) {
             operador = new Operador.Menor();
         } else if ("<=".equals(nombreFuncion)) {
             operador = new Operador.MenorIgual();

@@ -20,9 +20,14 @@ public class NodoFuncion implements NodoExpresion {
     /**
      * Devuelve el numero de parametros de entrada a la funcion
      */
-    public int numeroParametrosEntrada() {
-        return funcion.getNumeroParametros();
+    public int numeroMinimoParametrosEntrada() {
+        return funcion.getNumeroMinimoParametros();
     }
+
+    public int numeroMaximoParametrosEntrada() {
+        return funcion.getNumeroMaximoParametros();
+    }
+
 
     /**
      * Añade un nodo de parámetro de entrada a la función

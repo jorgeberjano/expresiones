@@ -26,7 +26,12 @@ public abstract class Operador implements Funcion {
     }
 
     @Override
-    public int getNumeroParametros() {
+    public int getNumeroMinimoParametros() {
+        return 2;
+    }
+
+    @Override
+    public int getNumeroMaximoParametros() {
         return 2;
     }
 
@@ -61,6 +66,14 @@ public abstract class Operador implements Funcion {
         @Override
         public Valor operar(Valor valor1, Valor valor2) {
             return new Valor(valor1.toDouble() / valor2.toDouble());
+        }
+    }
+
+    static class Igual extends Operador {
+
+        @Override
+        public Valor operar(Valor valor1, Valor valor2) {
+            return new Valor(valor1.equals(valor2));
         }
     }
 
